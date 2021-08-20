@@ -1,50 +1,45 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
+import axios from "axios";
+import Movie from "./Movie";
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-        console.log('hello constructor!');
+    state = {
+        isLoading : true,
+        movies: [],
+    };
+
+    getMovies = async () => {
+        const {data: {data: {movies}}} = await axios.get('https://yts.mx/api/v2/list_movies.json?sort_by=rating'); //data.data.movies
+        console.log(movies);
+        this.setState({
+            movies,
+            isLoading: false,
+        });
     }
-
-    state ={
-        count: 0,
-    };
-
-    add = () => {
-      // this.setState({
-      //     count: this.state.count + 1
-      // });
-      this.setState(current => ({ count: current.count + 1}));
-    };
-
-    minus = () => {
-        // this.setState({
-        //     count: this.state.count - 1
-        // });
-        this.setState(current => ({ count: current.count - 1}));
-    };
 
     componentDidMount() {
-        console.log('componentDidMount');
-    }
+        // setTimeout(() => {
+        //     this.setState({isLoading : false});
+        // }, 2000);
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('componentDidUpdate: i just updated');
-    }
-
-    componentWillUnmount() {
-        console.log('componetWillUnmount: ')
+        this.getMovies();
     }
 
     render() {
-        console.log('hello render!');
+        const { isLoading, movies } = this.state;
+
         return (
             <div>
-                <h1>The Number is {this.state.count}</h1>
-                <button onClick={this.add}> Add </button>
-                <button onClick={this.minus}> Minus </button>
+                {isLoading ? "Loading..." : movies.map(movie => (
+                    <Movie
+                        key={movie.id}
+                        id={movie.id}
+                        year={movie.year}
+                        title={movie.title}
+                        summary={movie.summary}
+                        poster={movie.medium_cover_image}
+                    />
+                ))}
             </div>
         )
     }
